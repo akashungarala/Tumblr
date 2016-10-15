@@ -16,6 +16,7 @@ class PhotoDetailViewController: UIViewController {
     @IBOutlet weak var photo: UIImageView!
 
     var post: NSDictionary!
+    var imageUrl: NSURL!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,13 +25,39 @@ class PhotoDetailViewController: UIViewController {
         avatar.layer.borderColor = UIColor(white: 0.7, alpha: 0.8).CGColor
         avatar.layer.borderWidth = 1;
         avatar.setImageWithURL(NSURL(string:"https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/avatar")!)
-        publishDate.text = (post["date"] as! String)
+        publishDate.text = convertDateFormater(post["date"] as! String)
         let image = post["photos"] as! [NSDictionary]
         let photoDetail = image[0]
         let original = photoDetail["original_size"] as! NSDictionary
         let url = original["url"] as! String
-        let imageUrl = NSURL(string: url)
+        imageUrl = NSURL(string: url)
         photo.setImageWithURL(imageUrl!)
     }
+    
+    @IBAction func onTapFullScreen(sender: UITapGestureRecognizer) {
+        performSegueWithIdentifier("FullScreenSegue", sender: PhotoDetailViewController.self)
+    }
+    
+    func convertDateFormater(date: String) -> String {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss z"
+        dateFormatter.timeZone = NSTimeZone(name: "UTC")
+        guard let date = dateFormatter.dateFromString(date) else {
+            assert(false, "no date from string")
+            return ""
+        }
+        dateFormatter.dateFormat = "MMM d, yyyy HH:mm:ss z"
+        dateFormatter.timeZone = NSTimeZone(name: "UTC")
+        let timeStamp = dateFormatter.stringFromDate(date)
+        return timeStamp
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let destination = segue.destinationViewController as? FullScreenPhotoViewController {
+            destination.imageUrl = imageUrl!
+        }
+    }
+    
+    @IBAction func close(sender: UIStoryboardSegue) {}
     
 }

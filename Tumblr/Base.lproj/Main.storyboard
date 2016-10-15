@@ -4,6 +4,11 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <mutableArray key="HelveticaNeue.ttc">
+            <string>HelveticaNeue-Bold</string>
+        </mutableArray>
+    </customFonts>
     <scenes>
         <!--Photos View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -62,15 +67,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="HPt-Wr-aJj">
+                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="HPt-Wr-aJj">
                                 <rect key="frame" x="0.0" y="143" width="320" height="425"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="yVg-Tx-QHD" appends="YES" id="JJP-NI-6rh"/>
+                                </connections>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="05F-gu-fWy">
                                 <rect key="frame" x="78" y="90" width="230" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="hiu-U8-6Fi">
@@ -85,11 +94,63 @@
                         <outlet property="avatar" destination="hiu-U8-6Fi" id="AXF-3s-zle"/>
                         <outlet property="photo" destination="HPt-Wr-aJj" id="QR2-ZV-Kpq"/>
                         <outlet property="publishDate" destination="05F-gu-fWy" id="Q8y-w8-igT"/>
+                        <segue destination="7jf-8y-DyR" kind="modal" identifier="FullScreenSegue" id="f4k-i1-kva"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3tN-cR-ana" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="yVg-Tx-QHD">
+                    <connections>
+                        <action selector="onTapFullScreen:" destination="lzQ-Ne-02s" id="qyO-v6-7G4"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="862" y="125"/>
+        </scene>
+        <!--Full Screen Photo View Controller-->
+        <scene sceneID="rTs-rr-J2H">
+            <objects>
+                <viewController title="Full Screen Photo View Controller" id="7jf-8y-DyR" customClass="FullScreenPhotoViewController" customModule="Tumblr" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="pM7-X8-4AH">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" maximumZoomScale="6" id="g5U-SU-XaX">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <imageView multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="IiR-Fp-iVj">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <gestureRecognizers/>
+                                    </imageView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="5xQ-bv-xgL">
+                                        <rect key="frame" x="276" y="20" width="36" height="36"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="16"/>
+                                        <state key="normal" backgroundImage="Close">
+                                            <color key="titleColor" red="1" green="0.45003430529999999" blue="0.38835145809999999" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
+                                        <connections>
+                                            <segue destination="Fo8-gk-b9i" kind="unwind" unwindAction="close:" id="G8I-Uy-eDU"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <connections>
+                                    <outlet property="delegate" destination="7jf-8y-DyR" id="kPx-No-D9V"/>
+                                </connections>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="photo" destination="IiR-Fp-iVj" id="Zzp-7m-gZT"/>
+                        <outlet property="scrollView" destination="g5U-SU-XaX" id="xSq-it-rav"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2Ib-jL-Lgg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="Fo8-gk-b9i" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="1247" y="125"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Mgt-L8-3Xq">
@@ -114,4 +175,7 @@
             <point key="canvasLocation" x="74" y="129"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Close" width="512" height="512"/>
+    </resources>
 </document>

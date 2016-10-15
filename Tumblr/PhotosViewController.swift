@@ -7,37 +7,30 @@
 //
 
 import UIKit
+import Foundation
 import AFNetworking
 
-class PhotosViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class PhotosViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     
     var posts: [NSDictionary]?
+    var isMoreDataLoading = false
+    var loadingMoreView:InfiniteScrollActivityView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        let apiKey = "Q6vHoaVm5L1u2ZAW1fqv3Jw48gFzYVg9P0vH0VHl3GVy6quoGV"
-        let url = NSURL(string: "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/posts/photo?api_key=\(apiKey)")
-        let request = NSURLRequest(URL: url!)
-        let session = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
-            delegate: nil,
-            delegateQueue: NSOperationQueue.mainQueue()
-        )
-        let task : NSURLSessionDataTask = session.dataTaskWithRequest(request,
-            completionHandler: { (dataOrNil, response, error) in
-            if let data = dataOrNil {
-                if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(data, options:[]) as? NSDictionary {
-                    let response = responseDictionary["response"]! as! NSDictionary
-                    self.posts = (response["posts"] as! [NSDictionary])
-                    self.tableView.reloadData()
-                }
-            }
-        });
-        task.resume()
+        fetchData()
+        let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+        loadingMoreView = InfiniteScrollActivityView(frame: frame)
+        loadingMoreView!.hidden = true
+        tableView.addSubview(loadingMoreView!)
+        var insets = tableView.contentInset;
+        insets.bottom += InfiniteScrollActivityView.defaultHeight;
+        tableView.contentInset = insets
+        self.tableView.separatorInset = UIEdgeInsetsZero
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -62,7 +55,7 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         profileView.setImageWithURL(NSURL(string:"https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/avatar")!)
         headerView.addSubview(profileView)
         let label = UILabel(frame: CGRect(x: 80, y: 25, width: 230, height: 30))
-        label.text = (posts![section]["date"] as! String)
+        label.text = convertDateFormater((posts![section]["date"] as! String))
         headerView.addSubview(label)
         return headerView
     }
@@ -81,6 +74,58 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         let imageUrl = NSURL(string: url)
         cell.photo.setImageWithURL(imageUrl!)
         return cell
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if (!isMoreDataLoading) {
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.dragging) {
+                isMoreDataLoading = true
+                let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+                fetchData()
+            }
+        }
+    }
+    
+    func fetchData() {
+        let apiKey = "Q6vHoaVm5L1u2ZAW1fqv3Jw48gFzYVg9P0vH0VHl3GVy6quoGV"
+        let url = NSURL(string: "https://api.tumblr.com/v2/blog/humansofnewyork.tumblr.com/posts/photo?api_key=\(apiKey)")
+        let request = NSURLRequest(URL: url!)
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate: nil,
+            delegateQueue: NSOperationQueue.mainQueue()
+        )
+        let task : NSURLSessionDataTask = session.dataTaskWithRequest(request,
+            completionHandler: { (dataOrNil, response, error) in
+                if let data = dataOrNil {
+                    if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(data, options:[]) as? NSDictionary {
+                        let response = responseDictionary["response"]! as! NSDictionary
+                        self.posts = (response["posts"] as! [NSDictionary])
+                        self.isMoreDataLoading = false
+                        self.loadingMoreView!.stopAnimating()
+                        self.tableView.reloadData()
+                    }
+                }
+        });
+        task.resume()
+    }
+    
+    func convertDateFormater(date: String) -> String {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss z"
+        dateFormatter.timeZone = NSTimeZone(name: "UTC")
+        guard let date = dateFormatter.dateFromString(date) else {
+            assert(false, "no date from string")
+            return ""
+        }
+        dateFormatter.dateFormat = "MMM d, yyyy HH:mm:ss z"
+        dateFormatter.timeZone = NSTimeZone(name: "UTC")
+        let timeStamp = dateFormatter.stringFromDate(date)
+        return timeStamp
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
