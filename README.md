@@ -1,9 +1,32 @@
 # Tumblr
 **Tumblr** is an iOS application that enables a user to view the read-only data (photos) of the Tumblr client.
 
+Submitted by: **Akash Ungarala**
+
+Time spent: 4 hours spent in total
+
 ## Platform
 
 iOS, Swift, Objective-C, Cocoa Pods
+
+## Milestones
+
+- [x] Milestone 1: Setup
+- [x] Milestone 2: Hook up the Tumblr API
+- [x] Milestone 3: Build the Main Photo Feed
+- [x] Milestone 4: Build the Details Screen
+- [x] Milestone 5: Add Pull to Refresh
+
+## Bonuses
+
+- [x] Bonus 1: Add Avatar and Publish Dates
+- [x] Bonus 2: Infinite Scrolling
+- [x] Bonus 3: Zoomable Photo View
+
+The following **additional** features are implemented:
+
+- [x] Date Formatting
+- [x] Background colors and other UI enhancements
 
 ## Video Walkthrough 
 
